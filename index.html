@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DEAROUTFIT — Toko Baju</title>
+
+  <!-- Bootstrap -->
+  <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Font (Poppins) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --accent: #198754;
+      --muted: #6b6b6b;
+      --card-bg: #ffffff;
+      --page-bg: #F7F6F2;
+      --glass: rgba(255,255,255,0.7);
+      --radius: 14px;
+      --shadow-soft: 0 10px 30px rgba(16,24,40,0.06);
+    }
+
+    html { scroll-behavior: smooth; }
+    /* Base */
+    html,body { height:100%; }
+    body{
+      font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--page-bg);
+      color: #1b1b1b;
+      margin:0;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.35;
+    }
+
+    /* Top navbar — clean, glassy */
+    .navbar {
+      background: linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(247,246,242,0.9) 60%);
+      border-radius: 12px;
+      padding: .6rem 1rem;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(6px);
+    }
+    .navbar-brand { display:flex; align-items:center; gap:.7rem; }
+    .navbar-brand img { width:56px; height:56px; object-fit:cover; border-radius:12px; transition: transform .22s ease; }
+    .navbar-brand img:hover { transform: rotate(-6deg) scale(1.03); }
+    .brand-title { font-weight:700; letter-spacing:.06em; color:var(--accent); font-size:1rem; }
+
+    .nav-link { color:#2b2b2b !important; font-weight:500; padding:.45rem .8rem; border-radius:8px; }
+    .nav-link:hover { background: rgba(25,135,84,0.06); color:var(--accent) !important; }
+
+    /* Search */
+    #search-wrapper { position:relative; min-width:240px; max-width:420px; }
+    #nav-search {
+      border-radius: 999px;
+      padding-left:1rem;
+      padding-right:2.5rem;
+      height:38px;
+      box-shadow: 0 6px 18px rgba(10,10,10,0.03);
+      border: 1px solid rgba(16,24,40,0.06);
+      background: #fff;
+    }
+    #search-suggestions{
+      position:absolute; left:0; right:0; top:calc(100% + .6rem);
+      background: var(--card-bg); border-radius:10px; box-shadow:0 12px 30px rgba(10,10,10,0.06);
+      overflow:auto; max-height:240px; display:none; z-index:1055;
+      border: 1px solid rgba(16,24,40,0.04);
+    }
+    #search-suggestions.show{ display:block; }
+    #search-suggestions .list-group-item{ cursor:pointer; border:none; padding:.6rem .9rem; }
+    #search-suggestions .list-group-item:hover{ background:rgba(25,135,84,0.06); color:var(--accent); }
+
+    /* Cart button */
+    #cart-btn { min-width:44px; height:38px; border-radius:999px; background:var(--accent); color:#fff; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(25,135,84,0.12); border:none; position:relative; }
+    #cart-badge { font-size:.65rem; transform:none; top:-6px; right:-6px; position:absolute; }
+
+    /* Hero / banner */
+    .hero {
+      margin-top:1.25rem;
+      border-radius: 16px;
+      overflow:hidden;
+      display:flex;
+      gap:1.5rem;
+      align-items:center;
+      padding:2rem;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcfb 100%);
+      box-shadow: var(--shadow-soft);
+    }
+    .hero-left { flex:1 1 48%; }
+    .hero-right { flex: 1 1 48%; display:flex; justify-content:center; align-items:center; }
+
+    .hero h1{ font-size:2rem; margin:0 0 .5rem; letter-spacing:-0.01em; }
+    .hero p{ margin:0 0 1rem; color:var(--muted); font-size:0.98rem; }
+
+    .hero-cta { display:flex; gap: .7rem; align-items:center; }
+
+    .cta-primary { background:var(--accent); color:#fff; border-radius:12px; padding:.6rem 1.05rem; font-weight:600; box-shadow:0 10px 30px rgba(25,135,84,0.12); border:none; text-decoration:none; display:inline-block; }
+    .cta-outline { background:transparent; border-radius:12px; padding:.5rem .9rem; border:1px solid rgba(16,24,40,0.06); font-weight:600; text-decoration:none; display:inline-block; color:inherit; }
+
+    /* Product grid */
+    .catalog {
+      margin-top:1.5rem;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:1.25rem;
+    }
+
+    @media (max-width: 992px){ .catalog{ grid-template-columns: repeat(2,1fr); } .hero{ flex-direction:column; } }
+    @media (max-width: 576px){ .catalog{ grid-template-columns: 1fr; } .navbar-brand img{ width:48px; height:48px; } #search-wrapper{ display:none; } }
+
+    .card-product{
+      border-radius:14px;
+      padding:0.9rem;
+      background:var(--card-bg);
+      box-shadow: 0 10px 30px rgba(10,10,10,0.04);
+      display:flex; flex-direction:column; gap:.6rem;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card-product:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(10,10,10,0.07); }
+    .prod-thumb{
+      border-radius:12px;
+      width:100%;
+      aspect-ratio: 4 / 3;
+      object-fit:cover;
+      display:block;
+      cursor:pointer;
+    }
+    .prod-meta{ display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+
+    .price{ font-weight:700; color:#0f5132; }
+    .title{ font-weight:600; font-size:.98rem; color:#111827; margin-bottom:0; }
+
+    .add-to-cart { border-radius:10px; padding:.45rem .7rem; border:1px solid rgba(16,24,40,0.06); background:transparent; }
+    .add-to-cart.btn-success{ background:var(--accent); color:#fff; border:none; box-shadow: 0 10px 26px rgba(25,135,84,0.12); }
+
+    /* thumbnail small */
+    .thumb {
+      width:100%;
+      max-width:100%;
+      height:auto;
+      transition: transform .2s ease, box-shadow .2s ease;
+      cursor: pointer;
+      border-radius:10px;
+    }
+
+    /* Modal gallery tweaks */
+    .modal-content { background:transparent; border:0; }
+    .modal-body img{ max-height:72vh; border-radius:12px; box-shadow: 0 30px 60px rgba(10,10,10,0.2); }
+
+    /* subtle footer */
+    footer{ margin-top:2rem; text-align:center; color:var(--muted); font-size:.9rem; padding:1rem 0; }
+  </style>
+</head>
+
+<body class="p-3 p-md-4">
+  <!-- NAVBAR -->
+  <header>
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid align-items-center">
+        <a class="navbar-brand" href="#home">
+          <img src="images/logo1.jpeg" alt="Logo kiri">
+          <div class="d-flex flex-column">
+            <span class="brand-title">DEAROUTFIT</span>
+            <small style="color:var(--muted); font-weight:600;">Streetwear & Essentials</small>
+          </div>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center">
+            <li class="nav-item"><a class="nav-link active px-3" aria-current="page" href="#home">Home</a></li>
+            <li class="nav-item"><a class="nav-link px-3" href="#catalog">Product</a></li>
+            <li class="nav-item"><a class="nav-link px-3" href="#about">About</a></li>
+            <li class="nav-item"><a class="nav-link px-3" href="#contact">Contact</a></li>
+          </ul>
+
+          <form class="d-flex me-3" role="search" id="search-wrapper">
+            <input id="nav-search" class="form-control form-control-sm" type="search" placeholder="Cari produk..." aria-label="Search" autocomplete="off">
+            <div id="search-suggestions" class="list-group"></div>
+          </form>
+
+          <div class="d-flex align-items-center gap-2">
+            <button id="cart-btn" class="btn" title="Keranjang">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M0 1a1 1 0 0 1 1-1h1.11a1 1 0 0 1 .98.804L3.89 3H14a1 1 0 0 1 .98 1.198l-1.2 6A1 1 0 0 1 12.8 11H5a1 1 0 0 1-.98-.804L1.61 1.607A1 1 0 0 1 1.11 1H1a1 1 0 0 1-1-0z"/>
+              </svg>
+              <span id="cart-badge" class="badge rounded-pill bg-danger">0</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <main class="container">
+    <section id="home" class="hero mt-4">
+      <div class="hero-left">
+        <h1>New Season — Stylish & Comfortable</h1>
+        <p>Discover our latest collection: basic t-shirts, premium outerwear, and comfortable sneakers. Minimal design, maximum quality.</p>
+        <div class="hero-cta">
+          <a class="cta-primary" href="#catalog">Belanja Sekarang</a>
+          <a class="cta-outline" href="#catalog">Lihat Koleksi</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <img src="images/main1.jpeg" alt="Hero image" style="width:100%; max-width:420px; border-radius:12px; box-shadow: 0 20px 40px rgba(10,10,10,0.06);">
+      </div>
+    </section>
+
+    <!-- CATALOG / PRODUCTS -->
+    <section id="catalog" class="catalog" aria-label="Daftar produk">
+      <!-- Product 1 -->
+      <article class="card-product">
+        <img src="images/main1.jpeg" data-large="images/main1-large.jpeg" alt="Kaos Putih" class="prod-thumb thumb">
+        <div class="prod-meta">
+          <div>
+            <p class="title">T-Shirt Basic</p>
+            <small class="text-muted">Cotton, 100%</small>
+          </div>
+          <div class="text-end">
+            <div class="price">Rp149.000</div>
+            <div class="text-muted" style="font-size:.85rem">Stok: 24</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-sm add-to-cart flex-grow-1">Tambah Keranjang</button>
+          <button class="btn btn-sm btn-outline-secondary view-btn" title="Lihat">Lihat</button>
+        </div>
+      </article>
+
+      <!-- Product 2 -->
+      <article class="card-product">
+        <img src="images/main2.jpeg" data-large="images/main2-large.jpeg" alt="Jaket Hitam" class="prod-thumb thumb">
+        <div class="prod-meta">
+          <div>
+            <p class="title">Jaket Hoodie</p>
+            <small class="text-muted">Fleece, comfy fit</small>
+          </div>
+          <div class="text-end">
+            <div class="price">Rp249.000</div>
+            <div class="text-muted" style="font-size:.85rem">Stok: 12</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-sm add-to-cart flex-grow-1">Tambah Keranjang</button>
+          <button class="btn btn-sm btn-outline-secondary view-btn" title="Lihat">Lihat</button>
+        </div>
+      </article>
+
+      <!-- Product 3 -->
+      <article class="card-product">
+        <img src="images/main3.jpeg" data-large="images/main3-large.jpeg" alt="Jeans" class="prod-thumb thumb">
+        <div class="prod-meta">
+          <div>
+            <p class="title">Jeans Slim</p>
+            <small class="text-muted">Stretch denim</small>
+          </div>
+          <div class="text-end">
+            <div class="price">Rp199.000</div>
+            <div class="text-muted" style="font-size:.85rem">Stok: 8</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-sm add-to-cart flex-grow-1">Tambah Keranjang</button>
+          <button class="btn btn-sm btn-outline-secondary view-btn" title="Lihat">Lihat</button>
+        </div>
+      </article>
+
+      <!-- Product 4 -->
+      <article class="card-product">
+        <img src="images/main4.jpeg" data-large="images/main4-large.jpeg" alt="Sneakers" class="prod-thumb thumb">
+        <div class="prod-meta">
+          <div>
+            <p class="title">Sneakers</p>
+            <small class="text-muted">Lightweight sole</small>
+          </div>
+          <div class="text-end">
+            <div class="price">Rp299.000</div>
+            <div class="text-muted" style="font-size:.85rem">Stok: 16</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-sm add-to-cart flex-grow-1">Tambah Keranjang</button>
+          <button class="btn btn-sm btn-outline-secondary view-btn" title="Lihat">Lihat</button>
+        </div>
+      </article>
+
+      <!-- Product 5 -->
+      <article class="card-product">
+        <img src="images/main5.jpeg" data-large="images/main5-large.jpeg" alt="Top" class="prod-thumb thumb">
+        <div class="prod-meta">
+          <div>
+            <p class="title">Dress Casual</p>
+            <small class="text-muted">Soft rayon</small>
+          </div>
+          <div class="text-end">
+            <div class="price">Rp179.000</div>
+            <div class="text-muted" style="font-size:.85rem">Stok: 5</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-sm add-to-cart flex-grow-1">Tambah Keranjang</button>
+          <button class="btn btn-sm btn-outline-secondary view-btn" title="Lihat">Lihat</button>
+        </div>
+      </article>
+
+      <!-- Product 6 -->
+      <article class="card-product">
+        <img src="images/main6.jpeg" data-large="images/main6-large.jpeg" alt="Top2" class="prod-thumb thumb">
+        <div class="prod-meta">
+          <div>
+            <p class="title">Cap Premium</p>
+            <small class="text-muted">Embroidered</small>
+          </div>
+          <div class="text-end">
+            <div class="price">Rp89.000</div>
+            <div class="text-muted" style="font-size:.85rem">Stok: 31</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-sm add-to-cart flex-grow-1">Tambah Keranjang</button>
+          <button class="btn btn-sm btn-outline-secondary view-btn" title="Lihat">Lihat</button>
+        </div>
+      </article>
+    </section>
+
+    <div id="about" class="footer-paragraph my-4">
+      <p style="color:var(--muted); font-size:.95rem; text-align:center;">
+        Presenting our newest line of essential styles! Trendy items from our latest arrival collection will add flair to your outfit and help you stand out from the crowd. Shop now to add some freshness to your wardrobe.
+      </p>
+    </div>
+
+    <section id="contact" class="my-3 text-center">
+      <p class="text-muted">Email: hello@dearoutfit.example • Instagram: @dearoutfit</p>
+    </section>
+
+    <!-- footer -->
+    <footer>
+      © <span id="year"></span> DEAROUTFIT — All rights reserved.
+    </footer>
+  </main>
+
+  <!-- Modal gallery -->
+  <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-body p-0 d-flex align-items-center justify-content-between">
+          <button id="prevImg" class="btn btn-light btn-sm me-2" style="border-radius:10px">&#10094;</button>
+          <img src="" alt="Preview" class="img-fluid rounded" style="max-height:72vh; display:block; margin:0 auto;">
+          <button id="nextImg" class="btn btn-light btn-sm ms-2" style="border-radius:10px">&#10095;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap bundle -->
+  <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // set year
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      /* ---------- Cart count (persistent) ---------- */
+      const badge = document.getElementById('cart-badge');
+      let count = parseInt(localStorage.getItem('cartCount') || '3', 10);
+      const updateBadge = () => { badge.textContent = count; localStorage.setItem('cartCount', count); };
+      updateBadge();
+
+      document.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+          count++;
+          updateBadge();
+          btn.classList.add('btn-success');
+          setTimeout(()=>btn.classList.remove('btn-success'), 300);
+        });
+      });
+
+      /* ---------- search suggestions ---------- */
+      const products = ['T-Shirt', 'Jeans', 'Sneakers', 'Jacket', 'Dress', 'Hoodie', 'Cap', 'Jaket Hoodie', 'T-Shirt Basic', 'Jeans Slim'];
+      const search = document.getElementById('nav-search');
+      const sugBox = document.getElementById('search-suggestions');
+
+      search.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        sugBox.innerHTML = '';
+        if (!q) { sugBox.classList.remove('show'); return; }
+        const matches = products.filter(p => p.toLowerCase().includes(q));
+        matches.forEach(m => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'list-group-item list-group-item-action';
+          btn.textContent = m;
+          btn.addEventListener('click', () => { search.value = m; sugBox.classList.remove('show'); });
+          sugBox.appendChild(btn);
+        });
+        sugBox.classList.toggle('show', matches.length > 0);
+      });
+
+      document.addEventListener('click', e => { if (!e.target.closest('#search-wrapper')) sugBox.classList.remove('show'); });
+
+      /* ---------- gallery modal (click images) ---------- */
+      const thumbs = Array.from(document.querySelectorAll('.thumb'));
+      const modalEl = document.getElementById('galleryModal');
+      const modalImg = modalEl.querySelector('img');
+      let idx = 0;
+      const bsModal = new bootstrap.Modal(modalEl, { keyboard:false });
+
+      thumbs.forEach((t, i) => {
+        t.addEventListener('click', () => {
+          idx = i;
+          modalImg.src = t.dataset.large || t.src;
+          bsModal.show();
+        });
+      });
+
+      document.getElementById('prevImg').addEventListener('click', () => {
+        idx = (idx - 1 + thumbs.length) % thumbs.length;
+        modalImg.src = thumbs[idx].dataset.large || thumbs[idx].src;
+      });
+      document.getElementById('nextImg').addEventListener('click', () => {
+        idx = (idx + 1) % thumbs.length;
+        modalImg.src = thumbs[idx].dataset.large || thumbs[idx].src;
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (!document.querySelector('.modal.show')) return;
+        if (e.key === 'ArrowLeft') document.getElementById('prevImg').click();
+        if (e.key === 'ArrowRight') document.getElementById('nextImg').click();
+        if (e.key === 'Escape') bsModal.hide();
+      });
+
+      document.querySelectorAll('.view-btn').forEach((btn, i) => {
+        btn.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          const card = btn.closest('.card-product');
+          const img = card.querySelector('.thumb');
+          idx = thumbs.indexOf(img);
+          modalImg.src = img.dataset.large || img.src;
+          bsModal.show();
+        });
+      });
+
+      // update active nav link on scroll
+      const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+      const sections = Array.from(document.querySelectorAll('main [id]'));
+      const setActive = () => {
+        const pos = window.scrollY + 120;
+        sections.forEach(sec => {
+          const top = sec.offsetTop;
+          const bottom = top + sec.offsetHeight;
+          const id = '#' + sec.id;
+          const link = document.querySelector('.navbar-nav .nav-link[href="'+id+'"]');
+          if (!link) return;
+          if (pos >= top && pos < bottom) {
+            navLinks.forEach(n => n.classList.remove('active'));
+            link.classList.add('active');
+          }
+        });
+      };
+      window.addEventListener('scroll', setActive);
+      setActive();
+    });
+  </script>
+</body>
+</html>
